@@ -2,7 +2,10 @@ import express from "express";
 import cors from "cors";
 
 const app = express();
+
+// configs
 app.use(cors());
+app.use(express.json());
 
 const receitas = [
   {
@@ -29,6 +32,22 @@ app.get("/receitas/:id", (req, res) => {
   const receita = receitas.find((objeto) => objeto.id === id);
 
   res.send(receita);
+});
+
+app.post("/receitas", (req, res) => {
+
+  /* const novaReceita = req.body; */
+
+  const novaReceita = {
+    id: req.body.id,
+    titulo: req.body.titulo,
+    ingredientes: req.body.ingredientes,
+    preparo: req.body.preparo,
+  };
+
+  receitas.push(novaReceita)
+
+  res.send("Deu bom!")
 });
 
 app.listen(4000, () => {
