@@ -39,7 +39,7 @@ app.post("/receitas", (req, res) => {
   /* const novaReceita = req.body; */
 
   const novaReceita = {
-    id: req.body.id,
+    id: receitas.length + 1,
     titulo: req.body.titulo,
     ingredientes: req.body.ingredientes,
     preparo: req.body.preparo,
