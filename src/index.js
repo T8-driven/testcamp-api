@@ -38,7 +38,7 @@ app.post("/receitas", (req, res) => {
   const { titulo, ingredientes, preparo } = req.body;
 
   if (!titulo || !ingredientes || !preparo) {
-    res.status(400).send({message: "Insira todos os campos porfavor lindus"});
+    res.status(400).send({ message: "Insira todos os campos porfavor lindus" });
     return;
   }
 
@@ -51,9 +51,11 @@ app.post("/receitas", (req, res) => {
 
   receitas.push(novaReceita);
 
-  res.status(201).send("Receita criada com sucesso!")
+  res.status(201).send("Receita criada com sucesso!");
 });
 
-app.listen(4000, () => {
-  console.log("Server running in port: 4000");
+const port = process.env.PORT || 4000;
+
+app.listen(port, () => {
+  console.log(`Server running in port: ${port}`);
 });
