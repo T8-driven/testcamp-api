@@ -54,8 +54,6 @@ app.post("/receitas", (req, res) => {
   res.status(201).send("Receita criada com sucesso!");
 });
 
-const port = process.env.PORT || 5000;
-
-app.listen(port, () => {
-  console.log(`Server running in port: ${port}`);
+app.listen(4000, () => {
+  console.log(`Server running in port: ${4000}`);
 });
