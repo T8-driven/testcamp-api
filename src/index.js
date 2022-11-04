@@ -10,7 +10,7 @@ app.use(express.json());
 const receitas = [
   {
     id: 1,
-    titulo: "Pão com Ovo",
+    titulo: "Pão com Ovo whey",
     ingredientes: "Ovo e pão",
     preparo: "Frite o ovo e coloque o pão",
   },
@@ -23,6 +23,21 @@ const receitas = [
 ];
 
 app.get("/receitas", (req, res) => {
+  const { ingrediente, titulo } = req.query;
+
+  if (ingrediente) {
+    const receitaFiltrada = receitas.filter(
+      (receita) =>
+        receita.ingredientes.toLowerCase().indexOf(ingrediente.toLowerCase()) >=
+          0 &&
+        receita.titulo.toLowerCase().indexOf(titulo.toLowerCase()) >=
+          0
+    );
+
+    res.send(receitaFiltrada);
+    return;
+  }
+
   res.send(receitas);
 });
 
