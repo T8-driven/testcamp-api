@@ -35,19 +35,23 @@ app.get("/receitas/:id", (req, res) => {
 });
 
 app.post("/receitas", (req, res) => {
+  const { titulo, ingredientes, preparo } = req.body;
 
-  /* const novaReceita = req.body; */
+  if (!titulo || !ingredientes || !preparo) {
+    res.status(400).send({message: "Insira todos os campos porfavor lindus"});
+    return;
+  }
 
   const novaReceita = {
     id: receitas.length + 1,
-    titulo: req.body.titulo,
-    ingredientes: req.body.ingredientes,
-    preparo: req.body.preparo,
+    titulo,
+    ingredientes,
+    preparo,
   };
 
-  receitas.push(novaReceita)
+  receitas.push(novaReceita);
 
-  res.send("Deu bom!")
+  res.status(201).send("Receita criada com sucesso!")
 });
 
 app.listen(4000, () => {
