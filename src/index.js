@@ -29,9 +29,7 @@ app.get("/receitas", (req, res) => {
     const receitaFiltrada = receitas.filter(
       (receita) =>
         receita.ingredientes.toLowerCase().indexOf(ingrediente.toLowerCase()) >=
-          0 &&
-        receita.titulo.toLowerCase().indexOf(titulo.toLowerCase()) >=
-          0
+          0 && receita.titulo.toLowerCase().indexOf(titulo.toLowerCase()) >= 0
     );
 
     res.send(receitaFiltrada);
@@ -51,9 +49,15 @@ app.get("/receitas/:id", (req, res) => {
 
 app.post("/receitas", (req, res) => {
   const { titulo, ingredientes, preparo } = req.body;
+  const {user} = req.headers;
 
   if (!titulo || !ingredientes || !preparo) {
     res.status(400).send({ message: "Insira todos os campos porfavor lindus" });
+    return;
+  }
+
+  if(user !== "Thiago"){
+    res.status(401).send({ message: "Usuário não autorizado" });
     return;
   }
 
