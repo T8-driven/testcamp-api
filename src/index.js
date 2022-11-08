@@ -1,11 +1,35 @@
 import express from "express";
 import cors from "cors";
+import { MongoClient } from "mongodb";
 
 const app = express();
 
 // configs
 app.use(cors());
 app.use(express.json());
+const mongoClient = new MongoClient("mongodb://localhost:27017");
+let db;
+
+mongoClient
+  .connect()
+  .then(() => {
+    db = mongoClient.db("dcComics");
+  })
+  .catch((err) => console.log(err));
+
+app.get("/herois", (req, res) => {
+  db.collection("herois")
+    .find()
+    .toArray()
+    .then((herois) => {
+      /* console.log(herois); */
+      res.send(herois);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.sendStatus(500);
+    });
+});
 
 const receitas = [
   {
@@ -49,14 +73,14 @@ app.get("/receitas/:id", (req, res) => {
 
 app.post("/receitas", (req, res) => {
   const { titulo, ingredientes, preparo } = req.body;
-  const {user} = req.headers;
+  const { user } = req.headers;
 
   if (!titulo || !ingredientes || !preparo) {
     res.status(400).send({ message: "Insira todos os campos porfavor lindus" });
     return;
   }
 
-  if(user !== "Thiago"){
+  if (user !== "Thiago") {
     res.status(401).send({ message: "Usuário não autorizado" });
     return;
   }
