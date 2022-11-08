@@ -13,23 +13,10 @@ let db;
 mongoClient
   .connect()
   .then(() => {
-    db = mongoClient.db("dcComics");
+    db = mongoClient.db("tastecamp");
   })
   .catch((err) => console.log(err));
 
-app.get("/herois", (req, res) => {
-  db.collection("herois")
-    .find()
-    .toArray()
-    .then((herois) => {
-      /* console.log(herois); */
-      res.send(herois);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.sendStatus(500);
-    });
-});
 
 const receitas = [
   {
@@ -73,28 +60,38 @@ app.get("/receitas/:id", (req, res) => {
 
 app.post("/receitas", (req, res) => {
   const { titulo, ingredientes, preparo } = req.body;
-  const { user } = req.headers;
+  /* const { user } = req.headers; */
 
   if (!titulo || !ingredientes || !preparo) {
     res.status(400).send({ message: "Insira todos os campos porfavor lindus" });
     return;
   }
 
-  if (user !== "Thiago") {
+  /* if (user !== "Thiago") {
     res.status(401).send({ message: "Usuário não autorizado" });
     return;
-  }
+  } */
 
-  const novaReceita = {
+  /* const novaReceita = {
     id: receitas.length + 1,
     titulo,
     ingredientes,
     preparo,
-  };
+  }; */
 
-  receitas.push(novaReceita);
-
-  res.status(201).send("Receita criada com sucesso!");
+  db.collection("receitas")
+    .insert({
+      titulo,
+      ingredientes,
+      preparo,
+    })
+    .then((response) => {
+      console.log(response);
+      res.status(201).send("Receita criada com sucesso!");
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
 });
 
 app.listen(4000, () => {
