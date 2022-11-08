@@ -17,8 +17,7 @@ mongoClient
   })
   .catch((err) => console.log(err));
 
-
-const receitas = [
+/* const receitas = [
   {
     id: 1,
     titulo: "Pão com Ovo whey",
@@ -31,10 +30,11 @@ const receitas = [
     ingredientes: "Leite, Aveia e Whey",
     preparo: "Mistura tudo na panela fervendo",
   },
-];
+]; */
+
 
 app.get("/receitas", (req, res) => {
-  const { ingrediente, titulo } = req.query;
+  /* const { ingrediente, titulo } = req.query;
 
   if (ingrediente) {
     const receitaFiltrada = receitas.filter(
@@ -45,9 +45,17 @@ app.get("/receitas", (req, res) => {
 
     res.send(receitaFiltrada);
     return;
-  }
+  } */
 
-  res.send(receitas);
+  db.collection("receitas")
+    .find()
+    .toArray()
+    .then((receitas) => {
+      res.send(receitas);
+    }).catch(err => {
+      console.log(err)
+      res.status(500).send(err);
+    });
 });
 
 app.get("/receitas/:id", (req, res) => {
