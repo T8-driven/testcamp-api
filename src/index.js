@@ -1,13 +1,16 @@
 import express from "express";
 import cors from "cors";
 import { MongoClient } from "mongodb";
+import dotenv from "dotenv";
+
 
 const app = express();
 
 // configs
+dotenv.config();
 app.use(cors());
 app.use(express.json());
-const mongoClient = new MongoClient("mongodb://localhost:27017");
+const mongoClient = new MongoClient(process.env.MONGO_URI);
 let db;
 
 mongoClient
@@ -32,7 +35,6 @@ mongoClient
   },
 ]; */
 
-
 app.get("/receitas", (req, res) => {
   /* const { ingrediente, titulo } = req.query;
 
@@ -52,8 +54,9 @@ app.get("/receitas", (req, res) => {
     .toArray()
     .then((receitas) => {
       res.send(receitas);
-    }).catch(err => {
-      console.log(err)
+    })
+    .catch((err) => {
+      console.log(err);
       res.status(500).send(err);
     });
 });
