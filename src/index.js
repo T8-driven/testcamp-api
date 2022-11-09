@@ -3,7 +3,6 @@ import cors from "cors";
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 
-
 const app = express();
 
 // configs
@@ -20,22 +19,11 @@ mongoClient
   })
   .catch((err) => console.log(err));
 
-/* const receitas = [
-  {
-    id: 1,
-    titulo: "Pão com Ovo whey",
-    ingredientes: "Ovo e pão",
-    preparo: "Frite o ovo e coloque o pão",
-  },
-  {
-    id: 2,
-    titulo: "Mingau de Whey",
-    ingredientes: "Leite, Aveia e Whey",
-    preparo: "Mistura tudo na panela fervendo",
-  },
-]; */
 
-app.get("/receitas", (req, res) => {
+// PROMISSE HELL
+
+// Nivel 1
+app.get("/receitas", (req, res) => { // callback
   /* const { ingrediente, titulo } = req.query;
 
   if (ingrediente) {
@@ -48,11 +36,13 @@ app.get("/receitas", (req, res) => {
     res.send(receitaFiltrada);
     return;
   } */
-
+  
+  // Nivel 2
   db.collection("receitas")
     .find()
     .toArray()
     .then((receitas) => {
+      // Nivel 3
       res.send(receitas);
     })
     .catch((err) => {
@@ -61,13 +51,13 @@ app.get("/receitas", (req, res) => {
     });
 });
 
-app.get("/receitas/:id", (req, res) => {
+/* app.get("/receitas/:id", (req, res) => {
   const id = Number(req.params.id);
 
   const receita = receitas.find((objeto) => objeto.id === id);
 
   res.send(receita);
-});
+}); */
 
 app.post("/receitas", (req, res) => {
   const { titulo, ingredientes, preparo } = req.body;
