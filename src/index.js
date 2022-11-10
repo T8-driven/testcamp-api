@@ -12,18 +12,18 @@ app.use(express.json());
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 let db;
 
-mongoClient
-  .connect()
-  .then(() => {
-    db = mongoClient.db("tastecamp");
-  })
-  .catch((err) => console.log(err));
-
+try {
+  await mongoClient.connect();
+  db = mongoClient.db("tastecamp");
+} catch (err) {
+  console.log(err);
+}
 
 // PROMISSE HELL
 
 // Nivel 1
-app.get("/receitas", (req, res) => { // callback
+app.get("/receitas", async (req, res) => {
+  // callback
   /* const { ingrediente, titulo } = req.query;
 
   if (ingrediente) {
@@ -36,19 +36,14 @@ app.get("/receitas", (req, res) => { // callback
     res.send(receitaFiltrada);
     return;
   } */
-  
-  // Nivel 2
-  db.collection("receitas")
-    .find()
-    .toArray()
-    .then((receitas) => {
-      // Nivel 3
-      res.send(receitas);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).send(err);
-    });
+
+  try {
+    const receitas = await db.collection("receitas").find().toArray();
+    res.send(receitas);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
 });
 
 /* app.get("/receitas/:id", (req, res) => {
@@ -59,7 +54,7 @@ app.get("/receitas", (req, res) => { // callback
   res.send(receita);
 }); */
 
-app.post("/receitas", (req, res) => {
+app.post("/receitas", async (req, res) => {
   const { titulo, ingredientes, preparo } = req.body;
   /* const { user } = req.headers; */
 
@@ -80,19 +75,16 @@ app.post("/receitas", (req, res) => {
     preparo,
   }; */
 
-  db.collection("receitas")
-    .insert({
+  try {
+    await db.collection("receitas").insert({
       titulo,
       ingredientes,
       preparo,
-    })
-    .then((response) => {
-      console.log(response);
-      res.status(201).send("Receita criada com sucesso!");
-    })
-    .catch((err) => {
-      res.status(500).send(err);
     });
+    res.status(201).send("Receita criada com sucesso!");
+  } catch (err) {
+    res.status(500).send(err);
+  }
 });
 
 app.listen(4000, () => {
