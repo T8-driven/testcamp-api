@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
 
 const app = express();
@@ -87,6 +87,25 @@ app.post("/receitas", async (req, res) => {
   }
 });
 
+app.delete("/receitas/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const resp = await db
+      .collection("receitas")
+      .deleteOne({ _id: ObjectId(id) });
+  
+      console.log(resp);
+      res.send("Receita apagada com sucesso!");
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
 app.listen(4000, () => {
   console.log(`Server running in port: ${4000}`);
 });
+
+
+
