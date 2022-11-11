@@ -199,6 +199,26 @@ app.get("/receitas/pesquisa-titulo/:titulo", async (req, res) => {
   }
 });
 
+app.get("/receitas/pesquisa/:valor", async (req, res) => {
+  const { valor } = req.params;
+
+  try {
+    const regex = { $regex: valor, $options: "i" };
+
+    const receitas = await db
+      .collection("receitas")
+      .find({
+        $or: [{ titulo: regex }, { ingredientes: regex }, { preparo: regex }],
+      })
+      .toArray();
+
+    res.send(receitas);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
 app.listen(4000, () => {
   console.log(`Server running in port: ${4000}`);
 });
