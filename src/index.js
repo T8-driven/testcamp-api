@@ -183,6 +183,22 @@ app.put("/receitas/many/:ingredientes", async (req, res) => {
   }
 });
 
+app.get("/receitas/pesquisa-titulo/:titulo", async (req, res) => {
+  const { titulo } = req.params;
+
+  try {
+    const receitas = await db
+      .collection("receitas")
+      .find({ titulo: { $regex: titulo, $options: "i" } })
+      .toArray();
+
+    res.send(receitas);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
 app.listen(4000, () => {
   console.log(`Server running in port: ${4000}`);
 });
