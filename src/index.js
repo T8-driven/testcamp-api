@@ -4,12 +4,6 @@ import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
 import joi from "joi";
 
-// Schema / Modelo JOI
-/* 
-  titulo: string, required, min 3 caracteres
-  ingedientes: string, required, min 3 caracteres
-  preparo: string, required, min 3 caracteres
-*/
 const receitaSchema = joi.object({
   titulo: joi.string().required().min(3).max(100),
   ingredientes: joi.string().required(),
@@ -22,6 +16,7 @@ const app = express();
 dotenv.config();
 app.use(cors());
 app.use(express.json());
+
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 let db;
 
@@ -32,24 +27,7 @@ try {
   console.log(err);
 }
 
-// PROMISSE HELL
-
-// Nivel 1
 app.get("/receitas", async (req, res) => {
-  // callback
-  /* const { ingrediente, titulo } = req.query;
-
-  if (ingrediente) {
-    const receitaFiltrada = receitas.filter(
-      (receita) =>
-        receita.ingredientes.toLowerCase().indexOf(ingrediente.toLowerCase()) >=
-          0 && receita.titulo.toLowerCase().indexOf(titulo.toLowerCase()) >= 0
-    );
-
-    res.send(receitaFiltrada);
-    return;
-  } */
-
   try {
     const receitas = await db
       .collection("receitas")
@@ -120,6 +98,25 @@ app.delete("/receitas/:id", async (req, res) => {
 
     console.log(resp);
     res.send("Receita apagada com sucesso!");
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+app.delete("/receitas/many/:ingredientes", async (req, res) => {
+  const { ingredientes } = req.params;
+
+  try {
+    const { deletedCount } = await db
+      .collection("receitas")
+      .deleteMany({ ingredientes: ingredientes });
+
+    if (!deletedCount) {
+      return res.status(400).send("Nenhuma receita foi deletada");
+    }
+
+    res.send("Receitas deletadas com sucesso!");
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
