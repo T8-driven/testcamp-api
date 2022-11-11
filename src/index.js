@@ -2,6 +2,19 @@ import express from "express";
 import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
+import joi from "joi";
+
+// Schema / Modelo JOI
+/* 
+  titulo: string, required, min 3 caracteres
+  ingedientes: string, required, min 3 caracteres
+  preparo: string, required, min 3 caracteres
+*/
+const receitaSchema = joi.object({
+  titulo: joi.string().required().min(3).max(100),
+  ingredientes: joi.string().required(),
+  preparo: joi.string().required(),
+});
 
 const app = express();
 
@@ -38,7 +51,17 @@ app.get("/receitas", async (req, res) => {
   } */
 
   try {
-    const receitas = await db.collection("receitas").find().toArray();
+    const receitas = await db
+      .collection("receitas")
+      .find({}, { _id: 0 })
+      .toArray();
+    /* const receitasSemId = receitas.map((receita) => {
+      return {
+        titulo: receita.titulo,
+        ingredientes: receita.ingredientes,
+        preparo: receita.preparo,
+      };
+    }); */
     res.send(receitas);
   } catch (err) {
     console.log(err);
@@ -46,41 +69,41 @@ app.get("/receitas", async (req, res) => {
   }
 });
 
-/* app.get("/receitas/:id", (req, res) => {
-  const id = Number(req.params.id);
+app.get("/receitas/:id", async (req, res) => {
+  const { id } = req.params;
 
-  const receita = receitas.find((objeto) => objeto.id === id);
+  try {
+    const receitaEncontrada = await db
+      .collection("receitas")
+      .findOne({ _id: new ObjectId(id) });
 
-  res.send(receita);
-}); */
+    console.log(receitaEncontrada);
+
+    if (!receitaEncontrada) {
+      res.status(400).send("Receita não encontrada");
+      return;
+    }
+
+    res.send(receitaEncontrada);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
 
 app.post("/receitas", async (req, res) => {
-  const { titulo, ingredientes, preparo } = req.body;
-  /* const { user } = req.headers; */
+  const body = req.body;
 
-  if (!titulo || !ingredientes || !preparo) {
-    res.status(400).send({ message: "Insira todos os campos porfavor lindus" });
+  const validation = receitaSchema.validate(body, { abortEarly: false });
+
+  if (validation.error) {
+    const errors = validation.error.details.map((detail) => detail.message);
+    res.send(errors);
     return;
   }
 
-  /* if (user !== "Thiago") {
-    res.status(401).send({ message: "Usuário não autorizado" });
-    return;
-  } */
-
-  /* const novaReceita = {
-    id: receitas.length + 1,
-    titulo,
-    ingredientes,
-    preparo,
-  }; */
-
   try {
-    await db.collection("receitas").insert({
-      titulo,
-      ingredientes,
-      preparo,
-    });
+    await db.collection("receitas").insert(body);
     res.status(201).send("Receita criada com sucesso!");
   } catch (err) {
     res.status(500).send(err);
@@ -94,9 +117,44 @@ app.delete("/receitas/:id", async (req, res) => {
     const resp = await db
       .collection("receitas")
       .deleteOne({ _id: ObjectId(id) });
-  
-      console.log(resp);
-      res.send("Receita apagada com sucesso!");
+
+    console.log(resp);
+    res.send("Receita apagada com sucesso!");
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+app.put("/receitas/:id", async (req, res) => {
+  const { id } = req.params;
+  const receita = req.body;
+
+  const validation = receitaSchema.validate(receita, { abortEarly: false });
+
+  if (validation.error) {
+    const errors = validation.error.details.map((detail) => detail.message);
+    res.send(errors);
+    return;
+  }
+
+  try {
+    const receitaEncontrada = await db
+      .collection("receitas")
+      .findOne({ _id: new ObjectId(id) });
+
+    console.log(receitaEncontrada);
+
+    if (!receitaEncontrada) {
+      res.status(400).send("Receita não encontrada");
+      return;
+    }
+
+    await db
+      .collection("receitas")
+      .updateOne({ _id: receitaEncontrada._id }, { $set: receita });
+
+    res.send("Receita atualizada com sucesso!");
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
@@ -106,6 +164,3 @@ app.delete("/receitas/:id", async (req, res) => {
 app.listen(4000, () => {
   console.log(`Server running in port: ${4000}`);
 });
-
-
-
