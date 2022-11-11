@@ -158,6 +158,31 @@ app.put("/receitas/:id", async (req, res) => {
   }
 });
 
+app.put("/receitas/many/:ingredientes", async (req, res) => {
+  const { ingredientes } = req.params;
+  const receita = req.body;
+
+  try {
+    const receitasEncontradas = await db
+      .collection("receitas")
+      .find({ ingredientes: ingredientes });
+
+    if (receitasEncontradas.length === 0) {
+      res.status(400).send("Receitas não encontradas");
+      return;
+    }
+
+    await db
+      .collection("receitas")
+      .updateMany({ ingredientes: ingredientes }, { $set: receita });
+
+    res.send("Receitas atualizadas com sucesso!");
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
 app.listen(4000, () => {
   console.log(`Server running in port: ${4000}`);
 });
